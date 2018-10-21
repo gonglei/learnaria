@@ -34,14 +34,14 @@
 		
 		$elem.attr({
 			'id': id,
-      'role': 'region', // add the accordion to the landmarked regions
+      'role': 'presentation', // add the accordion to the landmarked regions
       'aria-multiselectable': !this.options.autoCollapse // define if more than one panel can be expanded
     }).addClass('ik_accordion');
 
     this.headers = $elem.children('dt')
       .attr({'role': 'heading'}); // set heading role for each accordion header
 
-		$elem.children('dt').each(function(i, el) {
+		this.headers.each(function(i, el) {
 			var $me, $btn;
 			
 			$me = $(el);
@@ -72,6 +72,43 @@
 		
 	};
 	
+  Plugin.prototype.onKeyDown = function (event) {
+       
+    var $me, $header, plugin, $elem, $current, ind;
+    
+    $me = $(event.target);
+    $header = $me.parent('dt');
+    plugin = event.data.plugin;
+    $elem = $(plugin.element);
+    
+    switch (event.keyCode) {
+      // toggle panel by pressing enter key, or spacebar
+      case ik_utils.keys.enter:
+      case ik_utils.keys.space:
+          event.preventDefault();
+          event.stopPropagation();
+          plugin.togglePanel(event);
+          break;
+      
+      // use up arrow to jump to the previous header
+      case ik_utils.keys.up:
+          ind = plugin.headers.index($header);
+          if (ind > 0) {
+              plugin.headers.eq(--ind).find('.button').focus();
+          }
+          console.log(ind);
+          break;
+      
+      // use down arrow to jump to the next header
+      case ik_utils.keys.down:
+          ind = plugin.headers.index($header);
+          if (ind < plugin.headers.length - 1) {
+              plugin.headers.eq(++ind).find('.button').focus();
+          }
+          break;
+    }
+  };
+
 	/** 
 	 * Toggles accordion panel.
 	 *
@@ -111,43 +148,6 @@
 			$panel.slideToggle({ duration: plugin.options.animationSpeed });
 			
 		}
-	};
-	
-  Plugin.prototype.onKeyDown = function (event) {
-       
-    var $me, $header, plugin, $elem, $current, ind;
-    
-    $me = $(event.target);
-    $header = $me.parent('dt');
-    plugin = event.data.plugin;
-    $elem = $(plugin.element);
-    
-    switch (event.keyCode) {
-      // toggle panel by pressing enter key, or spacebar
-      case ik_utils.keys.enter:
-      case ik_utils.keys.space:
-          event.preventDefault();
-          event.stopPropagation();
-          plugin.togglePanel(event);
-          break;
-      
-      // use up arrow to jump to the previous header
-      case ik_utils.keys.up:
-          ind = plugin.headers.index($header);
-          if (ind > 0) {
-              plugin.headers.eq(--ind).find('.button').focus();
-          }
-          console.log(ind);
-          break;
-      
-      // use down arrow to jump to the next header
-      case ik_utils.keys.down:
-          ind = plugin.headers.index($header);
-          if (ind < plugin.headers.length - 1) {
-              plugin.headers.eq(++ind).find('.button').focus();
-          }
-          break;
-    }
   };
 
 	$.fn[pluginName] = function ( options ) {
