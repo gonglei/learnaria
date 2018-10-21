@@ -62,15 +62,6 @@
 			.on('click', {'plugin': plugin, 'slide': 'right'}, plugin.gotoSlide)
       .appendTo($controls);
 
-		$('<div/>') // add instructions for screen reader users
-      .attr({
-        'id': id + '_instructions',
-        'aria-hidden': 'true'
-      })
-      .text(this.options.instructions)
-      .addClass('ik_readersonly')
-      .appendTo($elem);
-
 		$navbar = $('<ul/>')
 			.addClass('ik_navbar')
 			.appendTo($controls);
@@ -98,6 +89,16 @@
 		plugin.navbuttons = $navbar.children('li');
 		plugin.slides.first().addClass('active');
 		plugin.navbuttons.first().addClass('active');
+
+		$('<div/>') // add instructions for screen reader users
+      .attr({
+        'id': id + '_instructions',
+        'aria-hidden': 'true'
+      })
+      .text(this.options.instructions)
+      .addClass('ik_readersonly')
+      .appendTo($elem);
+
 		plugin.startTimer({'data':{'plugin': plugin}});
 		
 	};
@@ -135,11 +136,12 @@
 	 * @param {object} event.data.plugin - Reference to plugin.
 	 */
 	Plugin.prototype.stopTimer = function (event) {
+    var plugin = event.data.plugin;
+
 		if (event.type === 'focusin') {
       plugin.element.attr({'aria-live': 'polite'});
     }
 
-    var plugin = event.data.plugin;
 		clearInterval(plugin.timer);
 		plugin.timer = null;
 		
