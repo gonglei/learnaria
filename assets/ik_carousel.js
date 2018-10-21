@@ -30,7 +30,7 @@
 		var id, plugin, $elem, $image, $controls, $navbar;
 		
 		plugin = this;
-		id = 'carousel' + $('.ik_slider').length;
+		id = 'carousel' + $('.ik_carousel').length;
 		$elem = plugin.element;
 		
 		$elem
@@ -42,8 +42,8 @@
 			})
 			.addClass('ik_carousel')
       .on('keydown', {'plugin': plugin}, plugin.onKeyDown)
-			.on('mouseenter', {'plugin': plugin}, plugin.stopTimer)
-			.on('mouseleave', {'plugin': plugin}, plugin.startTimer)
+			.on('focusin mouseenter', {'plugin': plugin}, plugin.stopTimer)
+			.on('focusout mouseleave', {'plugin': plugin}, plugin.startTimer)
 		
 		$controls = $('<div/>')
       .attr({
