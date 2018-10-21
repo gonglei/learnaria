@@ -34,14 +34,14 @@
 		
 		$elem.attr({
 			'id': id,
-      'role': 'region', // add the accordion to the landmarked regions
+      'role': 'presentation', // add the accordion to the landmarked regions
       'aria-multiselectable': !this.options.autoCollapse // define if more than one panel can be expanded
     }).addClass('ik_accordion');
 
     this.headers = $elem.children('dt')
       .attr({'role': 'heading'}); // set heading role for each accordion header
 
-		$elem.children('dt').each(function(i, el) {
+		this.headers.each(function(i, el) {
 			var $me, $btn;
 			
 			$me = $(el);
@@ -70,47 +70,6 @@
 			});
 		}).hide();
 		
-	};
-	
-	/** 
-	 * Toggles accordion panel.
-	 *
-	 * @param {Object} event - Keyboard or mouse event.
-	 * @param {object} event.data - Event data.
-	 * @param {object} event.data.plugin - Reference to plugin.
-	 */
-	Plugin.prototype.togglePanel = function (event) {
-		
-		var plugin, $elem, $panel, $me, isVisible;
-		
-		plugin = event.data.plugin;
-		$elem = $(plugin.element);
-		$me = $(event.target);
-		$panel = $me.parent('dt').next();
-		
-		if(plugin.options.autoCollapse) { // expand current panel and collapse the rest
-			
-			plugin.headers.each(function(i, el) {
-				var $hdr, $btn; 
-				
-				$hdr = $(el);
-				$btn = $hdr.find('.button');
-				
-				if($btn[0] != $(event.currentTarget)[0]) { 
-					$btn.removeClass('expanded');
-					$hdr.next().slideUp(plugin.options.animationSpeed);
-				} else { 
-					$btn.addClass('expanded');
-					$hdr.next().slideDown(plugin.options.animationSpeed);
-				}
-			});
-			
-		} else { // toggle current panel depending on the state
-		
-			isVisible = !!$panel.is(':visible');
-			$panel.slideToggle({ duration: plugin.options.animationSpeed });
-			
-		}
 	};
 	
   Plugin.prototype.onKeyDown = function (event) {
@@ -149,6 +108,53 @@
           break;
     }
   };
+
+	/** 
+	 * Toggles accordion panel.
+	 *
+	 * @param {Object} event - Keyboard or mouse event.
+	 * @param {object} event.data - Event data.
+	 * @param {object} event.data.plugin - Reference to plugin.
+	 */
+	Plugin.prototype.togglePanel = function (event) {
+		
+		var plugin, $elem, $panel, $me, isVisible;
+		
+		plugin = event.data.plugin;
+		$elem = $(plugin.element);
+		$me = $(event.target);
+		$panel = $me.parent('dt').next();
+		
+		// toggle current panel
+		
+		isVisible = !!$panel.is(':visible');
+		if(isVisible) {
+			$me.attr({'aria-expanded': false}).removeClass('expanded');
+		} else {
+			$me.attr({'aria-expanded': true}).addClass('expanded');
+		}
+		$panel.slideToggle({ duration: plugin.options.animationSpeed, done: function() { 
+				$panel.attr({'aria-hidden': isVisible});
+			}
+		});
+		
+		if(plugin.options.autoCollapse) { // collapse all other panels
+			
+			plugin.headers.each(function(i, el) {
+				var $hdr, $btn; 
+				
+				$hdr = $(el);
+				$btn = $hdr.find('.button');
+				
+				if($btn[0] != $(event.currentTarget)[0]) { 
+					$btn.attr({'aria-expanded': false}).removeClass('expanded');
+					$hdr.next().attr({'aria-hidden': 'true'}).slideUp(plugin.options.animationSpeed);
+				}
+			});
+			
+		}
+		
+	};
 
 	$.fn[pluginName] = function ( options ) {
 		
